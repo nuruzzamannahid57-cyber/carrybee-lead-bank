@@ -182,6 +182,72 @@ export default function ProgressionTab({
         </div>
       </div>
 
+      {/* ECC Operational Pipeline Bottleneck & Stage Velocity Bar */}
+      <div className="rounded-lg border border-[#E2E8F0] bg-white p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold text-[#0F172A]">
+              Acquisition Funnel Health &amp; Stage Distribution
+            </h3>
+            <p className="text-xs text-[#475569]">
+              Operator bottleneck view across {totalLeads.toLocaleString()} collected leads (+
+              {myRow?.added_this_month || 0} collected this month)
+            </p>
+          </div>
+          <span className="font-mono text-xs font-semibold text-[#334155]">
+            Connected Rate:{' '}
+            {totalLeads > 0
+              ? (((connectedCount + onboardedCount) / totalLeads) * 100).toFixed(1)
+              : '0.0'}
+            % · Onboarded: {conversionPct}%
+          </span>
+        </div>
+
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
+          {totalLeads > 0 && (
+            <>
+              <div
+                style={{ width: `${(onboardedCount / totalLeads) * 100}%` }}
+                title={`Onboarded: ${onboardedCount}`}
+                className="bg-[#059669] transition-all duration-200"
+              />
+              <div
+                style={{ width: `${(connectedCount / totalLeads) * 100}%` }}
+                title={`Connected / Follow-up: ${connectedCount}`}
+                className="bg-[#2563EB] transition-all duration-200"
+              />
+              <div
+                style={{ width: `${(newCount / totalLeads) * 100}%` }}
+                title={`Uncontacted New: ${newCount}`}
+                className="bg-[#94A3B8] transition-all duration-200"
+              />
+            </>
+          )}
+        </div>
+
+        <div className="mt-2.5 flex flex-wrap items-center gap-5 text-xs text-[#475569]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#059669]" />
+            <span>
+              Onboarded: <strong className="font-mono text-[#0F172A]">{onboardedCount}</strong>
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#2563EB]" />
+            <span>
+              Connected / Follow-Up:{' '}
+              <strong className="font-mono text-[#0F172A]">{connectedCount}</strong>
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#94A3B8]" />
+            <span>
+              Uncontacted New: <strong className="font-mono text-[#0F172A]">{newCount}</strong>
+            </span>
+          </span>
+        </div>
+      </div>
+
       {/* 2-Day Follow-Up Reminder Engine Queue */}
       <div className="rounded-lg border border-[#E2E8F0] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] px-5 py-4">

@@ -16,12 +16,9 @@ import {
 import LeadBankTab from '@/components/LeadBankTab';
 import LoginView from '@/components/LoginView';
 import ThemeToggle from '@/components/ThemeToggle';
+import DashboardSkeleton from '@/components/DashboardSkeleton';
 
-const DeferredTab = () => (
-  <div role="status" className="rounded-xl border border-slate-200/20 bg-white/5 px-4 py-6 text-center text-sm text-slate-400">
-    Loading section…
-  </div>
-);
+const DeferredTab = () => <DashboardSkeleton compact />;
 const AdminTeamTab = dynamic(() => import('@/components/AdminTeamTab'), { loading: DeferredTab });
 const MoneyTab = dynamic(() => import('@/components/MoneyTab'), { loading: DeferredTab });
 const ProgressionTab = dynamic(() => import('@/components/ProgressionTab'), { loading: DeferredTab });
@@ -179,11 +176,7 @@ export default function DashboardHomePage() {
   }
 
   if (checkingAuth) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] text-sm font-medium text-[#475569]">
-        Initializing Carrybee Lead Bank Portal...
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!sessionToken || !member) {

@@ -375,3 +375,54 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px rgba(59, 130, 
     scroll-behavior: auto !important;
   }
 }
+
+/* Animated aggregate-only team comparison chart */
+.member-chart-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, .22);
+  border-radius: 1rem;
+  background: linear-gradient(125deg, rgba(255,255,255,.88), rgba(239,246,255,.72), rgba(240,253,250,.74));
+  box-shadow: 0 16px 40px rgba(30, 64, 175, .07), inset 0 1px rgba(255,255,255,.9);
+  animation: chart-card-enter .7s cubic-bezier(.2,.75,.25,1) both;
+}
+.member-chart-glow {
+  position: absolute;
+  z-index: 0;
+  width: 14rem;
+  height: 14rem;
+  right: 10%;
+  top: 5%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,.18), rgba(45,212,191,.04) 68%, transparent 72%);
+  filter: blur(4px);
+  pointer-events: none;
+  animation: chart-glow-float 7s ease-in-out infinite alternate;
+}
+.member-stage-svg { display: block; overflow: visible; }
+.member-chart-grid { stroke: rgba(100,116,139,.22); stroke-width: 1; }
+.member-chart-axis { fill: #64748b; font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.member-chart-label { fill: #334155; font: 600 12px system-ui, sans-serif; }
+.member-chart-line {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: chart-line-draw 1.5s cubic-bezier(.2,.75,.25,1) forwards;
+  animation-delay: var(--series-delay, 0ms);
+}
+.member-chart-pulse { transform-box: fill-box; transform-origin: center; animation: chart-point-pulse 2.4s ease-in-out infinite; animation-delay: var(--series-delay, 0ms); }
+.member-chart-legend { display: inline-flex; align-items: center; gap: .45rem; color: #475569; font-size: 11px; font-weight: 600; }
+.member-chart-legend i { width: 9px; height: 9px; border-radius: 50%; background: var(--legend-color); box-shadow: 0 0 10px color-mix(in srgb, var(--legend-color), transparent 45%); }
+@keyframes chart-line-draw { to { stroke-dashoffset: 0; } }
+@keyframes chart-point-pulse { 0%,100% { transform: scale(.8); opacity: .45; } 50% { transform: scale(1.2); opacity: .95; } }
+@keyframes chart-glow-float { from { transform: translate3d(-16px, 4px, 0) scale(.88); opacity: .55; } to { transform: translate3d(18px, -14px, 0) scale(1.12); opacity: .95; } }
+@keyframes chart-card-enter { from { opacity: 0; transform: translateY(16px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+html[data-theme="dark"] .member-chart-card { background: linear-gradient(125deg, rgba(15,23,42,.94), rgba(30,41,59,.83), rgba(15,40,47,.82)); border-color: rgba(148,163,184,.25); box-shadow: 0 20px 50px rgba(2,6,23,.28), inset 0 1px rgba(255,255,255,.06); }
+html[data-theme="dark"] .member-chart-label { fill: #dbeafe; }
+html[data-theme="dark"] .member-chart-axis, html[data-theme="dark"] .member-chart-legend { fill: #aab8cc; color: #cbd5e1; }
+html[data-theme="dark"] .member-chart-grid { stroke: rgba(148,163,184,.2); }
+html[data-theme="dark"] .member-chart-card .border-slate-200\/70 { border-color: rgba(148,163,184,.2); }
+@media (prefers-reduced-motion: reduce) {
+  .member-chart-card, .member-chart-line, .member-chart-pulse, .member-chart-glow { animation: none !important; }
+  .member-chart-line { stroke-dashoffset: 0; }
+}

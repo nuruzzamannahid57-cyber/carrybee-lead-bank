@@ -25,6 +25,76 @@ const ROLE_LABELS: Record<string, string> = {
   team_member: 'Team Member',
 };
 
+const MEMBER_CHART_COLORS = ['#2563EB', '#059669', '#F97316', '#9333EA', '#DB2777', '#0891B2', '#CA8A04'];
+
+function MemberStageChart({ rows }: { rows: TeamProgressionRow[] }) {
+  const stages = [
+    { key: 'new_leads' as const, label: 'New' },
+    { key: 'connected_leads' as const, label: 'Connected' },
+    { key: 'onboarded_leads' as const, label: 'Onboarded' },
+  ];
+  const largest = Math.max(0, ...rows.flatMap((r) => stages.map((s) => r[s.key])));
+  const tickStep = Math.max(1, Math.ceil(largest / 4));
+  const yMax = tickStep * 4;
+  const chart = { left: 74, right: 884, top: 28, bottom: 254 };
+  const xAt = (i: number) => chart.left + (i * (chart.right - chart.left)) / (stages.length - 1);
+  const yAt = (value: number) => chart.bottom - (value / (yMax || 1)) * (chart.bottom - chart.top);
+
+  return (
+    <section className="member-chart-card" aria-label="Aggregate member stage comparison chart">
+      <div className="member-chart-glow" aria-hidden="true" />
+      <div className="relative z-10 flex flex-wrap items-start justify-between gap-2 px-5 pt-5">
+        <div>
+          <h4 className="text-sm font-bold text-[#0F172A]">Member Stage Comparison</h4>
+          <p className="mt-1 text-xs text-[#475569]">Aggregate lead counts by pipeline stage · no individual lead rows</p>
+        </div>
+        <span className="rounded-full border border-[#BFDBFE] bg-[#EFF6FF]/80 px-2.5 py-1 text-[10px] font-semibold text-[#1D4ED8]">LIVE TEAM SNAPSHOT</span>
+      </div>
+      <div className="relative z-10 overflow-x-auto px-2 pt-2">
+        <svg viewBox="0 0 920 320" role="img" aria-label="Line chart comparing each member's aggregate new, connected, and onboarded lead counts" className="member-stage-svg min-w-[620px] w-full">
+          <defs>
+            <linearGradient id="memberChartFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity=".15" />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+            </linearGradient>
+            <filter id="memberLineGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          {Array.from({ length: 5 }, (_, i) => {
+            const value = yMax - i * tickStep;
+            const y = chart.top + (i * (chart.bottom - chart.top)) / 4;
+            return <g key={i}>
+              <line x1={chart.left} x2={chart.right} y1={y} y2={y} stroke="currentColor" className="member-chart-grid" strokeDasharray={i === 4 ? '0' : '4 7'} />
+              <text x={chart.left - 12} y={y + 4} textAnchor="end" className="member-chart-axis">{value.toLocaleString()}</text>
+            </g>;
+          })}
+          {stages.map((stage, i) => <text key={stage.key} x={xAt(i)} y="286" textAnchor="middle" className="member-chart-label">{stage.label}</text>)}
+          {rows.map((row, rowIndex) => {
+            const color = MEMBER_CHART_COLORS[rowIndex % MEMBER_CHART_COLORS.length];
+            const points = stages.map((stage, i) => `${xAt(i)},${yAt(row[stage.key])}`).join(' ');
+            return <g key={row.member_id} className="member-chart-series" style={{ '--series-delay': `${rowIndex * 110}ms` } as React.CSSProperties}>
+              <polyline points={points} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#memberLineGlow)" className="member-chart-line" />
+              {stages.map((stage, i) => <g key={stage.key}>
+                <circle cx={xAt(i)} cy={yAt(row[stage.key])} r="10" fill={color} opacity=".12" className="member-chart-pulse" />
+                <circle cx={xAt(i)} cy={yAt(row[stage.key])} r="5" fill="white" stroke={color} strokeWidth="3">
+                  <title>{`${row.full_name} · ${stage.label}: ${row[stage.key].toLocaleString()}`}</title>
+                </circle>
+              </g>)}
+            </g>;
+          })}
+        </svg>
+      </div>
+      <div className="relative z-10 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-200/70 px-5 py-3">
+        {rows.map((row, i) => <span key={row.member_id} className="member-chart-legend" style={{ '--legend-color': MEMBER_CHART_COLORS[i % MEMBER_CHART_COLORS.length] } as React.CSSProperties}>
+          <i aria-hidden="true" />{row.full_name}
+        </span>)}
+      </div>
+    </section>
+  );
+}
+
 export default function ProgressionTab({
   accessToken,
   member,
@@ -368,7 +438,11 @@ export default function ProgressionTab({
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="p-4 pb-0 sm:p-5 sm:pb-0">
+            <MemberStageChart rows={teamRows} />
+          </div>
+
+          <div className="mt-5 overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-[#E2E8F0] bg-white text-[11px] font-semibold uppercase tracking-wider text-[#475569]">

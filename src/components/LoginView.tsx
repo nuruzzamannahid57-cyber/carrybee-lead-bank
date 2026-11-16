@@ -1,30 +1,74 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Script from 'next/script';
 import { Lock, Mail, ShieldCheck, Building2, ArrowRight, AlertCircle } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import ThemeToggle from '@/components/ThemeToggle';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: {
+        sitekey: string;
+        callback: (token: string) => void;
+        'expired-callback'?: () => void;
+        'error-callback'?: () => void;
+        theme?: 'auto' | 'light' | 'dark';
+        size?: 'normal' | 'compact' | 'flexible';
+      }) => string;
+      reset: (widgetId?: string) => void;
+      remove?: (widgetId: string) => void;
+    };
+  }
+}
 
 interface LoginViewProps {
   onLoginSuccess: () => void;
 }
 
 export default function LoginView({ onLoginSuccess }: LoginViewProps) {
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [turnstileReady, setTurnstileReady] = useState(false);
+  const captchaContainerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!siteKey || !turnstileReady || !window.turnstile || !captchaContainerRef.current || widgetIdRef.current) return;
+    widgetIdRef.current = window.turnstile.render(captchaContainerRef.current, {
+      sitekey: siteKey,
+      theme: 'auto',
+      size: 'flexible',
+      callback: (token) => setCaptchaToken(token),
+      'expired-callback': () => setCaptchaToken(''),
+      'error-callback': () => setCaptchaToken(''),
+    });
+    return () => {
+      if (widgetIdRef.current && window.turnstile?.remove) window.turnstile.remove(widgetIdRef.current);
+      widgetIdRef.current = null;
+    };
+  }, [siteKey, turnstileReady]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (siteKey && !captchaToken) {
+      setError('Complete the Cloudflare security check before signing in.');
+      return;
+    }
     setLoading(true);
     try {
       const supabase = getSupabaseBrowserClient();
       const { error: signErr } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
+        options: captchaToken ? { captchaToken } : {},
       });
       if (signErr) {
         setError(
@@ -37,6 +81,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setLoading(false);
+      if (siteKey && widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current);
+        setCaptchaToken('');
+      }
     }
   }
 
@@ -101,6 +149,13 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             </div>
           )}
 
+          {siteKey && (
+            <Script
+              src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+              strategy="afterInteractive"
+              onReady={() => setTurnstileReady(true)}
+            />
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
@@ -151,6 +206,13 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 />
               </div>
             </div>
+
+            {siteKey && (
+              <div className="rounded-md border border-[#CBD5E1] bg-slate-50/70 p-3">
+                <p className="mb-2 text-[11px] font-semibold text-[#475569]">Security verification</p>
+                <div ref={captchaContainerRef} />
+              </div>
+            )}
 
             <button
               type="submit"

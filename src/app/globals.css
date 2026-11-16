@@ -7,7 +7,7 @@
   --color-on-primary: #FFFFFF;
   --color-secondary: #3B82F6;
   --color-accent: #059669;
-  --color-background: #F8FAFC;
+  --color-background: #F3F7FC;
   --color-foreground: #0F172A;
   --color-card: #FFFFFF;
   --color-muted: #F1F5F9;
@@ -18,20 +18,146 @@
 
 html,
 body {
+  min-height: 100%;
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
 }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* Soft animated color fields sit behind the entire experience. */
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(219, 234, 254, .72), transparent 38%),
+    radial-gradient(ellipse at 92% 18%, rgba(209, 250, 229, .52), transparent 34%),
+    linear-gradient(145deg, #f7faff 0%, #eef4fb 52%, #f7fafc 100%);
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  width: min(34vw, 30rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: .45;
+  animation: ambient-drift 18s ease-in-out infinite alternate;
+}
+
+.app-shell::before {
+  top: 8%;
+  left: -12rem;
+  background: radial-gradient(circle, rgba(96, 165, 250, .48), rgba(147, 197, 253, .05) 68%);
+}
+
+.app-shell::after {
+  right: -12rem;
+  bottom: -8%;
+  background: radial-gradient(circle, rgba(52, 211, 153, .34), rgba(167, 243, 208, .04) 68%);
+  animation-delay: -8s;
+}
+
+.glass-header {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, .70) !important;
+  border-color: rgba(255, 255, 255, .82) !important;
+  box-shadow: 0 12px 38px rgba(30, 64, 110, .075), inset 0 1px rgba(255,255,255,.9);
+  backdrop-filter: blur(22px) saturate(155%);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  animation: glass-drop-in .65s cubic-bezier(.2,.7,.2,1) both;
+}
+
+.glass-panel,
+.dashboard-shell div[class*="rounded-lg"][class*="border"][class*="bg-white"] {
+  background: rgba(255, 255, 255, .68) !important;
+  border-color: rgba(255, 255, 255, .90) !important;
+  box-shadow: 0 18px 48px rgba(30, 64, 110, .08), 0 2px 8px rgba(30, 64, 110, .035), inset 0 1px rgba(255,255,255,.95);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.login-shell {
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(219, 234, 254, .85), transparent 48%),
+    radial-gradient(ellipse at 82% 75%, rgba(209, 250, 229, .48), transparent 35%),
+    linear-gradient(145deg, #f7faff 0%, #edf4fc 52%, #f8fafc 100%);
+}
+
+.login-card {
+  border-radius: 1.25rem !important;
+  padding: 2rem !important;
+  animation: card-arrive .75s cubic-bezier(.18,.8,.25,1) .08s both;
+}
+
+.dashboard-content {
+  animation: content-arrive .55s cubic-bezier(.2,.7,.2,1) both;
+}
+
+/* A little depth and movement on interactive surfaces, without affecting layout. */
+.dashboard-shell button,
+.login-shell button {
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.dashboard-shell button:hover:not(:disabled),
+.login-shell button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.dashboard-shell button:active:not(:disabled),
+.login-shell button:active:not(:disabled) {
+  transform: translateY(0) scale(.985);
+}
+
+.dashboard-shell main > div,
+.dashboard-shell main section {
+  animation: content-arrive .5s cubic-bezier(.2,.7,.2,1) both;
+}
+
+input, select, textarea {
+  transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, .13);
+}
+
+@keyframes ambient-drift {
+  from { transform: translate3d(0, -1.5rem, 0) scale(.94); }
+  to { transform: translate3d(2rem, 2rem, 0) scale(1.08); }
+}
+
+@keyframes glass-drop-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes card-arrive {
+  from { opacity: 0; transform: translateY(18px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes content-arrive {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .login-card { padding: 1.35rem !important; }
+  .app-shell::before, .app-shell::after { opacity: .32; filter: blur(52px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

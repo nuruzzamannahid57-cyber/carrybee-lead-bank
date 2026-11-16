@@ -120,10 +120,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
-                Carrybee Express
+                Carrybee Express LTD
               </p>
               <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">
-                Lead Bank &amp; Incentive Calculation
+                Lead Bank &amp; Incentive Portal
               </h1>
             </div>
           </div>

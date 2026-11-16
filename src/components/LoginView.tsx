@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Lock, Mail, ShieldCheck, Building2, ArrowRight, AlertCircle } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface LoginViewProps {
   onLoginSuccess: () => void;
@@ -64,18 +65,21 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   return (
     <div className="app-shell login-shell min-h-screen flex flex-col justify-center px-4 py-12">
       <div className="mx-auto w-full max-w-[440px]">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
           <div className="premium-logo flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A8A] text-white">
             <Building2 className="h-5 w-5" aria-hidden="true" />
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
-              Carrybee Commercial Operations
-            </p>
-            <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">
-              Lead Bank &amp; Merchant COD Portal
-            </h1>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#475569]">
+                Carrybee Commercial Operations
+              </p>
+              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">
+                Lead Bank &amp; Merchant COD Portal
+              </h1>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
 
         <div className="rounded-lg border border-[#E2E8F0] bg-white p-7">

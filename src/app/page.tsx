@@ -17,6 +17,7 @@ import LeadBankTab from '@/components/LeadBankTab';
 import LoginView from '@/components/LoginView';
 import MoneyTab from '@/components/MoneyTab';
 import ProgressionTab from '@/components/ProgressionTab';
+import ThemeToggle from '@/components/ThemeToggle';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TeamMemberProfile } from '@/lib/types';
 
@@ -230,6 +231,7 @@ export default function DashboardHomePage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <ThemeToggle />
             <button
               type="button"
               onClick={() => setPwModalOpen(true)}

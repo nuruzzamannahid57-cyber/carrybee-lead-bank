@@ -69,6 +69,36 @@ export default function DashboardHomePage() {
     }
     setMember(data.member);
     if (data.counts) setCounts(data.counts);
+
+    // Zero-token automatic pairing bridge for Carrybee COD Tracker Chrome Extension
+    if (typeof window !== 'undefined' && data.member?.extension_token) {
+      const bridgePayload = {
+        dashboardUrl: window.location.origin,
+        extensionToken: data.member.extension_token,
+        member: {
+          id: data.member.id,
+          full_name: data.member.full_name,
+          email: data.member.email,
+          role: data.member.role,
+          sheet_tab_name: data.member.sheet_tab_name,
+        },
+        onboardedCount: data.counts?.onboarded || 0,
+        updatedAt: Date.now(),
+      };
+      try {
+        window.localStorage.setItem('carrybee_ext_bridge', JSON.stringify(bridgePayload));
+        window.postMessage(
+          {
+            source: 'CARRYBEE_DASHBOARD_BRIDGE',
+            type: 'DASHBOARD_STATE_SYNC',
+            payload: bridgePayload,
+          },
+          '*'
+        );
+      } catch {
+        // Ignore storage quota issues in restricted frames
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -101,6 +131,17 @@ export default function DashboardHomePage() {
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem('carrybee_ext_bridge');
+        window.postMessage(
+          { source: 'CARRYBEE_DASHBOARD_BRIDGE', type: 'DASHBOARD_LOGOUT' },
+          '*'
+        );
+      } catch {
+        // Ignore
+      }
+    }
     setSessionToken(null);
     setMember(null);
   }

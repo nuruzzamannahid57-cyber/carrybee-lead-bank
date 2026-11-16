@@ -1,20 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "Carrybee Hive — Onboarded Merchant Order & COD Tracker",
-  "version": "1.0.0",
-  "description": "Tracks onboarded merchant order counts and COD (days 1-31 + mid-month window) from hive.carrybee.com/orders into the Lead Bank Money tab.",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "name": "Carrybee Lead Bank — Auto COD & 2% Incentive Tracker",
+  "version": "2.0.0",
+  "description": "Zero-config automatic COD & order sync from hive.carrybee.com/orders exclusively for merchants marked Onboarded in Carrybee Lead Bank.",
+  "permissions": ["storage", "tabs", "scripting"],
   "host_permissions": [
     "https://hive.carrybee.com/*",
+    "https://*.carrybee.com/*",
+    "https://carrybee-lead-bank-gamma.vercel.app/*",
     "https://*.vercel.app/*",
-    "https://*.e2b.app/*",
     "http://localhost:3000/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Carrybee Lead Bank COD Tracker",
+    "default_title": "Carrybee Auto COD Tracker",
     "default_popup": "popup.html"
   },
   "content_scripts": [
@@ -27,6 +28,15 @@
     {
       "matches": ["https://hive.carrybee.com/*"],
       "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://carrybee-lead-bank-gamma.vercel.app/*",
+        "https://*.vercel.app/*",
+        "http://localhost:3000/*"
+      ],
+      "js": ["dashboard-bridge.js"],
       "run_at": "document_idle"
     }
   ]

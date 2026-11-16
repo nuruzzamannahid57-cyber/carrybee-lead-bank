@@ -1,86 +1,72 @@
-const urlInput = document.getElementById('dashboardUrl');
-const tokenInput = document.getElementById('extensionToken');
-const matchCheck = document.getElementById('matchOnlyOnboarded');
-const saveBtn = document.getElementById('saveBtn');
-const syncNowBtn = document.getElementById('syncNowBtn');
+const liveBadgeEl = document.getElementById('liveBadge');
+const badgeTextEl = document.getElementById('badgeText');
 const memberNameEl = document.getElementById('memberName');
 const merchantCountEl = document.getElementById('merchantCount');
 const monthCodEl = document.getElementById('monthCod');
 const incentiveValEl = document.getElementById('incentiveVal');
-const statusMsgEl = document.getElementById('statusMsg');
+const openDashboardLinkEl = document.getElementById('openDashboardLink');
+const footerMetaEl = document.getElementById('footerMeta');
 
-function setStatus(msg) {
-  statusMsgEl.textContent = msg;
+function fmtBdt(n) {
+  return `BDT ${Number(n || 0).toLocaleString('en-BD', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
-async function verifyConnection(baseUrl, token) {
-  const cleanUrl = String(baseUrl || '').replace(/\/+$/, '');
-  if (!cleanUrl || !token) return;
-  try {
-    const resp = await fetch(`${cleanUrl}/api/extension/merchants`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await resp.json();
-    if (!resp.ok) {
-      setStatus(data.error || 'Token verification failed');
-      return;
+function renderSummary(data) {
+  if (!data || !data.ok) {
+    liveBadgeEl.classList.add('warn');
+    badgeTextEl.textContent = 'Sign In Needed';
+    memberNameEl.textContent = 'Not Signed In';
+    merchantCountEl.textContent = '0';
+    monthCodEl.textContent = 'BDT 0';
+    incentiveValEl.textContent = 'BDT 0';
+    openDashboardLinkEl.style.display = 'block';
+    if (data && data.dashboardUrl) {
+      openDashboardLinkEl.href = data.dashboardUrl;
     }
-    memberNameEl.textContent = data.member.full_name;
-    merchantCountEl.textContent = String((data.onboardedMerchants || []).length);
-    setStatus(`Connected as ${data.member.full_name} (${data.member.sheet_tab_name})`);
-  } catch (err) {
-    setStatus('Unable to reach Dashboard URL.');
-  }
-}
-
-chrome.storage.local.get(
-  ['dashboardUrl', 'extensionToken', 'matchOnlyOnboarded', 'lastSyncSummary'],
-  (cfg) => {
-    urlInput.value = cfg.dashboardUrl || 'https://carrybee-lead-bank-gamma.vercel.app';
-    if (cfg.extensionToken) tokenInput.value = cfg.extensionToken;
-    matchCheck.checked = cfg.matchOnlyOnboarded !== false;
-    if (cfg.lastSyncSummary) {
-      monthCodEl.textContent = `BDT ${Number(cfg.lastSyncSummary.totalMonthEligibleCod || 0).toLocaleString()}`;
-      incentiveValEl.textContent = `BDT ${Number(cfg.lastSyncSummary.totalIncentive2Pct || 0).toLocaleString()}`;
-    }
-    if (cfg.dashboardUrl && cfg.extensionToken) {
-      verifyConnection(cfg.dashboardUrl, cfg.extensionToken);
-    }
-  }
-);
-
-saveBtn.addEventListener('click', () => {
-  const dashboardUrl = urlInput.value.trim().replace(/\/+$/, '');
-  const extensionToken = tokenInput.value.trim();
-  const matchOnlyOnboarded = matchCheck.checked;
-  chrome.storage.local.set({ dashboardUrl, extensionToken, matchOnlyOnboarded }, () => {
-    setStatus('Saved. Verifying...');
-    verifyConnection(dashboardUrl, extensionToken);
-  });
-});
-
-syncNowBtn.addEventListener('click', async () => {
-  setStatus('Scanning active Carrybee Hive Orders tab...');
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !tab.id || !(tab.url || '').includes('hive.carrybee.com')) {
-    setStatus('Open https://hive.carrybee.com/orders in the active tab first.');
+    footerMetaEl.textContent =
+      (data && data.error) || 'Sign in once on Carrybee Lead Bank Dashboard to auto-pair.';
     return;
   }
-  chrome.tabs.sendMessage(tab.id, { type: 'SCAN_AND_GET_ORDERS' }, (scanRes) => {
-    const orders = (scanRes && scanRes.orders) || [];
-    if (orders.length === 0) {
-      setStatus('No orders found on current view yet. Wait for orders table to load.');
-      return;
-    }
-    setStatus(`Uploading ${orders.length} captured orders...`);
-    chrome.runtime.sendMessage({ type: 'SYNC_ORDERS_TO_DASHBOARD', orders }, (syncRes) => {
-      if (syncRes && syncRes.ok) {
-        monthCodEl.textContent = `BDT ${Number(syncRes.totalMonthEligibleCod || 0).toLocaleString()}`;
-        incentiveValEl.textContent = `BDT ${Number(syncRes.totalIncentive2Pct || 0).toLocaleString()}`;
-        setStatus(`Synced ${syncRes.syncedOrders} orders (${syncRes.matchedCount} matched).`);
-      } else {
-        setStatus((syncRes && syncRes.error) || 'Sync failed.');
-      }
-    });
-  });
+
+  liveBadgeEl.classList.remove('warn');
+  badgeTextEl.textContent = 'Auto-Sync Live';
+  openDashboardLinkEl.style.display = 'none';
+
+  const member = data.member || {};
+  const onbCount =
+    data.onboardedMerchantsCount !== undefined
+      ? Number(data.onboardedMerchantsCount)
+      : Array.isArray(data.onboardedMerchants)
+        ? data.onboardedMerchants.length
+        : 0;
+
+  memberNameEl.textContent = member.full_name || 'Connected';
+  merchantCountEl.textContent = String(onbCount);
+
+  // Strictly show BDT 0 when Onboarded Merchants is 0
+  if (onbCount === 0) {
+    monthCodEl.textContent = 'BDT 0';
+    incentiveValEl.textContent = 'BDT 0';
+    footerMetaEl.textContent = `Connected as ${member.full_name || ''} · 0 Onboarded Merchants in Dashboard`;
+  } else {
+    monthCodEl.textContent = fmtBdt(data.totalMonthEligibleCod || 0);
+    incentiveValEl.textContent = fmtBdt(data.totalIncentive2Pct || 0);
+    footerMetaEl.textContent = `Connected as ${member.full_name || ''} · ${data.month || ''} Auto-Synced`;
+  }
+}
+
+// Render cached state immediately if available, then refresh live from server + open Hive tab
+chrome.storage.local.get(['lastSummary'], (cfg) => {
+  if (cfg && cfg.lastSummary) {
+    renderSummary(cfg.lastSummary);
+  }
+});
+
+chrome.runtime.sendMessage({ type: 'GET_LIVE_POPUP_SUMMARY' }, (fresh) => {
+  if (!chrome.runtime.lastError && fresh) {
+    renderSummary(fresh);
+  }
 });

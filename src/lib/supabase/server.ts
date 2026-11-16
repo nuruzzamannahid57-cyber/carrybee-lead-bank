@@ -67,3 +67,62 @@ export async function requireAuthenticatedMember(req: NextRequest): Promise<
     member: member as TeamMemberProfile,
   };
 }
+
+/**
+ * Resolves the authenticated Carrybee member for zero-config Chrome Extension calls.
+ * Accepts EITHER:
+ *  1. Persistent `extension_token` (auto-bridged from the logged-in Dashboard), OR
+ *  2. Supabase Auth JWT `access_token` (auto-discovered directly from Dashboard localStorage).
+ */
+export async function resolveExtensionMember(req: NextRequest): Promise<
+  | { ok: true; admin: SupabaseClient; member: TeamMemberProfile }
+  | { ok: false; status: number; error: string }
+> {
+  const authHeader = req.headers.get('authorization') || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (!token) {
+    return {
+      ok: false,
+      status: 401,
+      error: 'Sign in once to the Carrybee Lead Bank Dashboard to enable automatic sync.',
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+
+  // 1. Check persistent extension_token first
+  if (!token.includes('.')) {
+    const { data: byExt } = await admin
+      .from('team_members')
+      .select('id, full_name, email, role, sheet_tab_name, extension_token, is_active, created_at')
+      .eq('extension_token', token)
+      .eq('is_active', true)
+      .single();
+
+    if (byExt) {
+      return { ok: true, admin, member: byExt as TeamMemberProfile };
+    }
+  }
+
+  // 2. Otherwise verify as Supabase Auth JWT access_token
+  const userClient = getSupabaseWithUserJwt(token);
+  const { data: userRes, error: authErr } = await userClient.auth.getUser(token);
+  if (!authErr && userRes?.user) {
+    const { data: byJwt } = await admin
+      .from('team_members')
+      .select('id, full_name, email, role, sheet_tab_name, extension_token, is_active, created_at')
+      .eq('id', userRes.user.id)
+      .eq('is_active', true)
+      .single();
+
+    if (byJwt) {
+      return { ok: true, admin, member: byJwt as TeamMemberProfile };
+    }
+  }
+
+  return {
+    ok: false,
+    status: 401,
+    error: 'Dashboard session expired or unrecognized. Open Carrybee Lead Bank Dashboard once to auto-connect.',
+  };
+}

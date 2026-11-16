@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Carrybee Lead Bank COD Tracker</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 350px;
+        padding: 16px;
+        font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+        background: #F8FAFC;
+        color: #0F172A;
+        font-size: 13px;
+      }
+      .hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #E2E8F0;
+        margin-bottom: 12px;
+      }
+      .title { font-weight: 700; font-size: 14px; color: #0F172A; }
+      .badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #EFF6FF;
+        color: #1D4ED8;
+        border: 1px solid #BFDBFE;
+      }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 4px;
+      }
+      input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-bottom: 10px;
+        background: #FFFFFF;
+        color: #0F172A;
+      }
+      .row-check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        color: #334155;
+      }
+      .btn {
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 6px;
+        border: none;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .btn-primary { background: #2563EB; color: #FFFFFF; margin-bottom: 8px; }
+      .btn-deal { background: #059669; color: #FFFFFF; }
+      .card {
+        margin-top: 12px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .kpi-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 4px 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .incentive { color: #059669; font-weight: 700; }
+      .status { margin-top: 8px; font-size: 11px; color: #475569; }
+    </style>
+  </head>
+  <body>
+    <div class="hdr">
+      <div class="title">Carrybee COD Tracker</div>
+      <span class="badge">Hive Orders</span>
+    </div>
+
+    <label for="dashboardUrl">Dashboard URL</label>
+    <input id="dashboardUrl" type="text" placeholder="https://your-dashboard.vercel.app" />
+
+    <label for="extensionToken">Personal Sync Token (from Money tab)</label>
+    <input id="extensionToken" type="password" placeholder="Paste your personal extension token" />
+
+    <label class="row-check">
+      <input id="matchOnlyOnboarded" type="checkbox" checked />
+      <span>Match strictly against my Onboarded Merchants</span>
+    </label>
+
+    <button id="saveBtn" class="btn btn-primary">Save & Verify Connection</button>
+    <button id="syncNowBtn" class="btn btn-deal">Scan & Sync hive.carrybee.com/orders</button>
+
+    <div class="card">
+      <div class="kpi-row"><span>Connected Member:</span><strong id="memberName">—</strong></div>
+      <div class="kpi-row"><span>Onboarded Merchants:</span><strong id="merchantCount">0</strong></div>
+      <div class="kpi-row"><span>Month Eligible COD:</span><strong id="monthCod">BDT 0</strong></div>
+      <div class="kpi-row"><span>2% COD Incentive:</span><strong id="incentiveVal" class="incentive">BDT 0</strong></div>
+    </div>
+
+    <div id="statusMsg" class="status">Ready to connect to Carrybee Lead Bank.</div>
+    <script src="popup.js"></script>
+  </body>
+</html>

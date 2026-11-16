@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Carrybee Hive — Onboarded Merchant Order & COD Tracker",
+  "version": "1.0.0",
+  "description": "Tracks onboarded merchant order counts and COD (days 1-31 + mid-month window) from hive.carrybee.com/orders into the Lead Bank Money tab.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://hive.carrybee.com/*",
+    "https://*.vercel.app/*",
+    "https://*.e2b.app/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Carrybee Lead Bank COD Tracker",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://hive.carrybee.com/*"],
+      "js": ["injected.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://hive.carrybee.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

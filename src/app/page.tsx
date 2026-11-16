@@ -208,7 +208,7 @@ export default function DashboardHomePage() {
       <header className="glass-header border-b border-[#E2E8F0] bg-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-4 py-3.5 sm:px-6 lg:flex-row lg:items-center">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#1E3A8A] text-white">
+            <div className="premium-logo flex h-9 w-9 items-center justify-center rounded-md bg-[#1E3A8A] text-white">
               <Building2 className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>

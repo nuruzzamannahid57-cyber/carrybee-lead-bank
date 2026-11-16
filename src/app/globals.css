@@ -33,11 +33,14 @@ body {
   isolation: isolate;
   overflow: clip;
   background:
-    radial-gradient(ellipse at 12% 0%, rgba(147, 197, 253, .48), transparent 38%),
-    radial-gradient(ellipse at 92% 18%, rgba(110, 231, 183, .34), transparent 34%),
-    linear-gradient(145deg, #edf5ff 0%, #e8f0fb 52%, #f1fbf7 100%);
-  background-size: 120% 120%;
-  animation: ambient-gradient 18s ease-in-out infinite alternate;
+    radial-gradient(ellipse at 7% 5%, rgba(147, 197, 253, .58), transparent 36%),
+    radial-gradient(ellipse at 91% 12%, rgba(110, 231, 183, .42), transparent 32%),
+    radial-gradient(ellipse at 62% 96%, rgba(196, 181, 253, .3), transparent 34%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 44px),
+    linear-gradient(145deg, #e9f2ff 0%, #e8effa 48%, #edf9f5 100%);
+  background-size: 130% 130%;
+  animation: ambient-gradient 22s ease-in-out infinite alternate;
 }
 
 .app-shell::before,
@@ -68,30 +71,63 @@ body {
 }
 
 .glass-header {
-  position: relative;
-  z-index: 2;
-  background: rgba(255, 255, 255, .58) !important;
-  border-color: rgba(255, 255, 255, .92) !important;
-  box-shadow: 0 16px 48px rgba(30, 64, 110, .13), inset 0 1px rgba(255,255,255,.98);
-  backdrop-filter: blur(22px) saturate(155%);
-  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, .68) !important;
+  border-color: rgba(255, 255, 255, .9) !important;
+  box-shadow: 0 14px 42px rgba(30, 64, 110, .11), inset 0 1px rgba(255,255,255,.98);
+  backdrop-filter: blur(28px) saturate(175%);
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
   animation: glass-drop-in .65s cubic-bezier(.2,.7,.2,1) both;
+}
+
+.glass-header nav {
+  gap: .35rem;
+  padding-top: .35rem;
+}
+
+.glass-header nav button[class*="border-b-2"] {
+  min-height: 2.75rem;
+  border-radius: 12px 12px 8px 8px;
+  transition: background-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+
+.glass-header nav button[class*="border-[#2563EB]"],
+.glass-header nav button[class*="border-[#059669]"] {
+  background: rgba(255, 255, 255, .72);
+  box-shadow: 0 5px 18px rgba(30, 64, 110, .09), inset 0 1px rgba(255,255,255,.95);
 }
 
 .glass-panel,
 .dashboard-shell div[class*="rounded-lg"][class*="border"][class*="bg-white"] {
-  background: rgba(255, 255, 255, .54) !important;
-  border-color: rgba(255, 255, 255, .96) !important;
-  box-shadow: 0 20px 54px rgba(30, 64, 110, .13), 0 3px 10px rgba(30, 64, 110, .055), inset 0 1px rgba(255,255,255,.98);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, .64) !important;
+  border-color: rgba(255, 255, 255, .97) !important;
+  box-shadow: 0 24px 64px rgba(34, 65, 108, .12), 0 5px 14px rgba(30, 64, 110, .055), inset 0 1.5px rgba(255,255,255,.98);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
 }
 
 .login-shell {
   background:
-    radial-gradient(ellipse at 50% 42%, rgba(219, 234, 254, .85), transparent 48%),
-    radial-gradient(ellipse at 82% 75%, rgba(209, 250, 229, .48), transparent 35%),
-    linear-gradient(145deg, #f7faff 0%, #edf4fc 52%, #f8fafc 100%);
+    radial-gradient(ellipse at 14% 18%, rgba(96, 165, 250, .34), transparent 38%),
+    radial-gradient(ellipse at 86% 72%, rgba(52, 211, 153, .27), transparent 35%),
+    radial-gradient(ellipse at 62% 4%, rgba(196, 181, 253, .28), transparent 31%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.19) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.19) 0 1px, transparent 1px 44px),
+    linear-gradient(145deg, #edf5ff 0%, #e7effb 52%, #eef9f5 100%);
+}
+
+.premium-logo {
+  background: linear-gradient(145deg, #2563EB 0%, #3156C8 48%, #0F766E 100%) !important;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, .28), inset 0 1px rgba(255,255,255,.42);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.premium-logo:hover {
+  transform: translateY(-2px) rotate(-3deg);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, .32), inset 0 1px rgba(255,255,255,.48);
 }
 
 .login-card {

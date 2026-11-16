@@ -65,7 +65,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
     <div className="app-shell login-shell min-h-screen flex flex-col justify-center px-4 py-12">
       <div className="mx-auto w-full max-w-[440px]">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A8A] text-white">
+          <div className="premium-logo flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A8A] text-white">
             <Building2 className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>

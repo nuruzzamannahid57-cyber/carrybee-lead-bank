@@ -3,13 +3,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   UserPlus,
-  FileSpreadsheet,
   ShieldCheck,
   Copy,
   Check,
   CheckCircle2,
   AlertCircle,
-  ExternalLink,
 } from 'lucide-react';
 import type { TeamMemberProfile, UserRole } from '@/lib/types';
 
@@ -19,9 +17,6 @@ interface AdminTeamTabProps {
 
 export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
   const [members, setMembers] = useState<TeamMemberProfile[]>([]);
-  const [spreadsheetId, setSpreadsheetId] = useState(
-    '1f46_Wp-j4RNf2B5ojEVDJQXuayjNojuuh5u6GJimavM'
-  );
   const [appsScriptUrl, setAppsScriptUrl] = useState('');
   const [appsScriptSource, setAppsScriptSource] = useState('');
   const [copiedScript, setCopiedScript] = useState(false);
@@ -29,7 +24,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserRole>('team_member');
-  const [sheetTabName, setSheetTabName] = useState('');
   const [addingMember, setAddingMember] = useState(false);
 
   const [savingBridge, setSavingBridge] = useState(false);
@@ -49,7 +43,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
     }
     if (sRes.ok) {
       const sJson = await sRes.json();
-      if (sJson.spreadsheetId) setSpreadsheetId(sJson.spreadsheetId);
       setAppsScriptUrl(sJson.appsScriptUrl || '');
       setAppsScriptSource(sJson.appsScriptSource || '');
     }
@@ -74,7 +67,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
           full_name: fullName.trim(),
           email: email.trim().toLowerCase(),
           role,
-          sheet_tab_name: (sheetTabName || fullName).trim(),
         }),
       });
       const data = await res.json();
@@ -84,7 +76,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
       }
       setFullName('');
       setEmail('');
-      setSheetTabName('');
       setRole('team_member');
       loadAdminData();
 
@@ -92,8 +83,8 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
       setStatusBanner({
         type: 'ok',
         text: prov?.emailSent
-          ? `Provisioned ${data.member.full_name} (${data.member.email}): Google Sheet tab '${data.member.sheet_tab_name}' created, encrypted password stored in Supabase, and confidential email sent + purged from Sent Mail.`
-          : `Created ${data.member.full_name} (${data.member.email}) in Supabase with encrypted password. Connect the Google Apps Script Web App URL below to enable automatic Sheet tab creation & Gmail dispatch + Sent Mail auto-purge.`,
+          ? `Provisioned ${data.member.full_name} (${data.member.email}): encrypted password stored in Supabase and confidential login email dispatched + purged from Sent Mail.`
+          : `Created ${data.member.full_name} (${data.member.email}) in Supabase with encrypted password. Connect the Apps Script Web App URL below to enable automatic Gmail credential dispatch + Sent Mail auto-purge.`,
       });
     } finally {
       setAddingMember(false);
@@ -123,8 +114,8 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
       setStatusBanner({
         type: 'ok',
         text: testPing
-          ? `Google Sheet & Gmail Auto-Purge Bridge verified: ${data.message}`
-          : 'Saved Google Apps Script Web App URL.',
+          ? `Background Sync & Gmail Auto-Purge Bridge verified: ${data.message}`
+          : 'Saved Apps Script Web App URL.',
       });
     } finally {
       setSavingBridge(false);
@@ -159,7 +150,7 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
             <div>
               <h2 className="text-sm font-bold text-[#0F172A]">Add New Team Member</h2>
               <p className="text-xs text-[#475569]">
-                Super Admin Only — Auto-creates Sheet tab + confidential password
+                Super Admin Only — Auto-provisions isolated workspace + confidential password
               </p>
             </div>
           </div>
@@ -174,10 +165,7 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
                 type="text"
                 required
                 value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  if (!sheetTabName) setSheetTabName(e.target.value);
-                }}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Sabbir Rahman"
                 className="w-full rounded-md border border-[#CBD5E1] px-3 py-2 text-[#0F172A]"
               />
@@ -198,37 +186,20 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="m-role" className="mb-1 block font-semibold text-[#334155]">
-                  Portal Role
-                </label>
-                <select
-                  id="m-role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full rounded-md border border-[#CBD5E1] bg-white px-3 py-2 font-semibold text-[#0F172A]"
-                >
-                  <option value="team_member">Team Member</option>
-                  <option value="team_leader">Team Leader</option>
-                  <option value="super_admin">Super Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="m-tab" className="mb-1 block font-semibold text-[#334155]">
-                  Google Sheet Tab Name
-                </label>
-                <input
-                  id="m-tab"
-                  type="text"
-                  required
-                  value={sheetTabName}
-                  onChange={(e) => setSheetTabName(e.target.value)}
-                  placeholder="Auto-created tab name"
-                  className="w-full rounded-md border border-[#CBD5E1] px-3 py-2 font-mono text-[#0F172A]"
-                />
-              </div>
+            <div>
+              <label htmlFor="m-role" className="mb-1 block font-semibold text-[#334155]">
+                Portal Role
+              </label>
+              <select
+                id="m-role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+                className="w-full rounded-md border border-[#CBD5E1] bg-white px-3 py-2 font-semibold text-[#0F172A]"
+              >
+                <option value="team_member">Team Member</option>
+                <option value="team_leader">Team Leader</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
             </div>
 
             <div className="rounded border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-[11px] text-[#475569]">
@@ -237,7 +208,7 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
                 <span>Zero-Knowledge Password Guarantee</span>
               </div>
               <p className="mt-1">
-                A random 14-character password is generated on the server, hashed in Supabase,
+                A random cryptographic password is generated on the server, hashed in Supabase,
                 emailed directly to the member, and immediately deleted from Sent Mail. Not even
                 Super Admin sees the password.
               </p>
@@ -248,32 +219,18 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
               disabled={addingMember}
               className="w-full cursor-pointer rounded-md bg-[#2563EB] px-4 py-2.5 font-semibold text-white hover:bg-[#1D4ED8] disabled:opacity-60"
             >
-              {addingMember
-                ? 'Creating Tab & Sending Confidential Password...'
-                : 'Provision Member & Auto-Create Sheet Tab'}
+              {addingMember ? 'Provisioning Member...' : 'Provision New Team Member'}
             </button>
           </form>
         </div>
 
         {/* Active Team Directory */}
         <div className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white lg:col-span-7">
-          <div className="flex items-center justify-between border-b border-[#E2E8F0] bg-[#F8FAFC] px-5 py-4">
-            <div>
-              <h2 className="text-sm font-bold text-[#0F172A]">Authorized Team Directory</h2>
-              <p className="text-xs text-[#475569]">
-                Mapped 1-to-1 with tabs in Lead Bank Google Sheet
-              </p>
-            </div>
-            <a
-              href={`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#334155] hover:bg-[#F8FAFC]"
-            >
-              <FileSpreadsheet className="h-3.5 w-3.5 text-[#059669]" aria-hidden="true" />
-              <span>Open Google Sheet</span>
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-            </a>
+          <div className="border-b border-[#E2E8F0] bg-[#F8FAFC] px-5 py-4">
+            <h2 className="text-sm font-bold text-[#0F172A]">Authorized Team Directory</h2>
+            <p className="text-xs text-[#475569]">
+              Strict per-member data isolation enforced via Row-Level Security
+            </p>
           </div>
 
           <div className="overflow-x-auto">
@@ -282,7 +239,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
                 <tr className="border-b border-[#E2E8F0] text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
                   <th className="px-5 py-3">Member</th>
                   <th className="px-3 py-3">Role</th>
-                  <th className="px-3 py-3">Assigned Sheet Tab</th>
                   <th className="px-5 py-3">Password Storage</th>
                 </tr>
               </thead>
@@ -300,7 +256,6 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
                           ? 'Team Leader'
                           : 'Team Member'}
                     </td>
-                    <td className="px-3 py-3 font-mono text-[#1D4ED8]">{m.sheet_tab_name}</td>
                     <td className="px-5 py-3">
                       <span className="rounded border border-[#A7F3D0] bg-[#ECFDF5] px-2 py-0.5 font-mono text-[10px] font-semibold text-[#065F46]">
                         Encrypted Hash (Hidden)
@@ -314,17 +269,16 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
         </div>
       </div>
 
-      {/* Live Google Sheet + Gmail Auto-Purge Bridge Configuration */}
+      {/* Background Sync & Confidential Email Auto-Purge Bridge Configuration */}
       <div className="rounded-lg border border-[#E2E8F0] bg-white p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-bold text-[#0F172A]">
-              Live Google Sheets Sync &amp; Gmail Sent-Mail Auto-Delete Bridge
+              Background Sync &amp; Confidential Email Auto-Purge Bridge
             </h3>
             <p className="text-xs text-[#475569]">
-              Deploy the pre-configured Google Apps Script on your Lead Bank Sheet once so Vercel
-              automatically appends/deletes leads on each member&rsquo;s tab, creates new member
-              tabs, and sends + deletes password emails from your Gmail.
+              Connect your Google Apps Script Web App endpoint once to enable real-time background
+              workspace sync and automatic Gmail credential dispatch + Sent Mail auto-deletion.
             </p>
           </div>
           <button
@@ -368,7 +322,7 @@ export default function AdminTeamTab({ accessToken }: AdminTeamTabProps) {
             onClick={() => handleSaveAndTestBridge(true)}
             className="shrink-0 cursor-pointer rounded-md bg-[#059669] px-4 py-2 text-xs font-semibold text-white hover:bg-[#047857]"
           >
-            Test Sheet Connection
+            Test Connection
           </button>
         </div>
       </div>

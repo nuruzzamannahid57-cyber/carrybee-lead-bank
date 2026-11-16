@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
   if (!fullName || !email.includes('@') || !sheetTabName) {
     return NextResponse.json(
-      { error: 'Full Name, valid Email, and Sheet Tab Name are required.' },
+      { error: 'Full Name and valid Email are required.' },
       { status: 400 }
     );
   }

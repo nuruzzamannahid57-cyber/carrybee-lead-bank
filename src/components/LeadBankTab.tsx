@@ -174,8 +174,8 @@ export default function LeadBankTab({
       setFeedback({
         type: 'ok',
         text: editingLead
-          ? `Updated "${data.lead.business_name}" in Supabase & tab '${member.sheet_tab_name}'.`
-          : `Added "${data.lead.business_name}" to your private Lead Bank & Google Sheet tab '${member.sheet_tab_name}'.`,
+          ? `Updated "${data.lead.business_name}" in your private Lead Bank.`
+          : `Added "${data.lead.business_name}" to your private Lead Bank.`,
       });
       fetchLeads();
       onCountsChanged();
@@ -214,7 +214,7 @@ export default function LeadBankTab({
 
   async function handleDeleteLead(lead: Lead) {
     const confirmed = window.confirm(
-      `Delete "${lead.business_name}" (${lead.contact_number || 'no phone'}) from your private list and Google Sheet tab '${member.sheet_tab_name}'?`
+      `Delete "${lead.business_name}" (${lead.contact_number || 'no phone'}) from your private Lead Bank?`
     );
     if (!confirmed) return;
 
@@ -250,7 +250,7 @@ export default function LeadBankTab({
 
   return (
     <div className="space-y-4">
-      {/* Privacy & Sheet Tab Header Bar */}
+      {/* Privacy Header Bar */}
       <div className="flex flex-col gap-3 rounded-lg border border-[#E2E8F0] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#EFF6FF] text-[#1D4ED8]">
@@ -259,16 +259,12 @@ export default function LeadBankTab({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-sm font-bold text-[#0F172A]">My Private Lead Bank</h2>
-              <span className="rounded border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#1D4ED8]">
-                Sheet Tab: {member.sheet_tab_name}
-              </span>
               <span className="tabular-nums text-xs font-medium text-[#475569]">
                 ({total.toLocaleString()} leads)
               </span>
             </div>
             <p className="mt-0.5 text-xs text-[#475569]">
-              Strict row-level isolation active — nobody else can view your leads. Changes sync to
-              Supabase and your dedicated Google Sheet tab.
+              Strict row-level isolation active — nobody else can view, edit, or access your leads.
             </p>
           </div>
         </div>
@@ -380,7 +376,7 @@ export default function LeadBankTab({
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-xs text-[#475569]">
                     No leads match your current filter. Click &ldquo;Add New Lead&rdquo; to add a
-                    business to Supabase &amp; tab &lsquo;{member.sheet_tab_name}&rsquo;.
+                    business to your private Lead Bank.
                   </td>
                 </tr>
               ) : (
@@ -551,7 +547,7 @@ export default function LeadBankTab({
                   {editingLead ? 'Edit Private Lead' : 'Add New Lead'}
                 </h3>
                 <p className="text-xs text-[#475569]">
-                  Syncs to Supabase &amp; Google Sheet tab &lsquo;{member.sheet_tab_name}&rsquo;
+                  Saved directly to your isolated Lead Bank workspace
                 </p>
               </div>
               <button

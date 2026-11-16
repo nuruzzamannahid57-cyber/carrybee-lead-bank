@@ -98,8 +98,8 @@ export default function ProgressionTab({
             My Acquisition Progression — {member.full_name}
           </h2>
           <p className="text-xs text-[#475569]">
-            Live stage counts from your private Lead Bank ({member.sheet_tab_name}) with automatic
-            48-hour follow-up reminders.
+            Live stage counts from your private Lead Bank with automatic 48-hour follow-up
+            reminders.
           </p>
         </div>
         <button
@@ -374,7 +374,6 @@ export default function ProgressionTab({
                 <tr className="border-b border-[#E2E8F0] bg-white text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
                   <th className="px-5 py-3">Team Member</th>
                   <th className="px-3 py-3">Role</th>
-                  <th className="px-3 py-3">Sheet Tab</th>
                   <th className="px-3 py-3 text-right">Total Collected</th>
                   <th className="px-3 py-3 text-right">New</th>
                   <th className="px-3 py-3 text-right">Connected</th>
@@ -399,9 +398,6 @@ export default function ProgressionTab({
                         <span className="rounded border border-[#CBD5E1] bg-[#F8FAFC] px-2 py-0.5 text-[11px] font-semibold text-[#334155]">
                           {ROLE_LABELS[row.role] || row.role}
                         </span>
-                      </td>
-                      <td className="px-3 py-3 font-mono text-[11px] text-[#475569]">
-                        {row.sheet_tab_name}
                       </td>
                       <td className="px-3 py-3 text-right font-mono font-bold tabular-nums text-[#0F172A]">
                         {row.total_leads.toLocaleString()}

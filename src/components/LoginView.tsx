@@ -185,7 +185,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 <p className="font-semibold text-[#0F172A]">Zero-Knowledge Lead &amp; Password Isolation</p>
                 <p className="mt-0.5">
                   Passwords are encrypted in Supabase and purged from Sent Mail upon delivery. Your
-                  Lead Bank rows are strictly isolated to your account and Google Sheet tab.
+                  Lead Bank rows are strictly isolated to your personal account.
                 </p>
               </div>
             </div>

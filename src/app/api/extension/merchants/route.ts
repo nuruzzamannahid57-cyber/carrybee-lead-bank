@@ -64,7 +64,6 @@ export async function GET(req: NextRequest) {
         full_name: member.full_name,
         email: member.email,
         role: member.role,
-        sheet_tab_name: member.sheet_tab_name,
       },
       onboardedMerchants: onboardedList,
       onboardedMerchantsCount: onboardedList.length,

@@ -19,7 +19,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Carrybee Lead Bank — Enterprise Acquisition & COD Incentive Portal',
   description:
-    'Confidential multi-role Lead Bank CRM, Google Sheets dual-sync, 2-day follow-up automation, and Carrybee Hive COD 2% incentive tracking.',
+    'Confidential multi-role Lead Bank CRM, 2-day follow-up automation, and Carrybee Hive COD 2% incentive tracking.',
 };
 
 export default function RootLayout({

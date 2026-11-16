@@ -80,7 +80,6 @@ export default function DashboardHomePage() {
           full_name: data.member.full_name,
           email: data.member.email,
           role: data.member.role,
-          sheet_tab_name: data.member.sheet_tab_name,
         },
         onboardedCount: data.counts?.onboarded || 0,
         updatedAt: Date.now(),
@@ -225,10 +224,7 @@ export default function DashboardHomePage() {
               </div>
               <p className="text-xs text-[#475569]">
                 Signed in as <strong className="text-[#0F172A]">{member.full_name}</strong> (
-                {member.email}) · Sheet Tab:{' '}
-                <span className="font-mono font-semibold text-[#1D4ED8]">
-                  {member.sheet_tab_name}
-                </span>
+                {member.email})
               </p>
             </div>
           </div>
@@ -314,7 +310,7 @@ export default function DashboardHomePage() {
                 }`}
               >
                 <Users className="h-4 w-4" aria-hidden="true" />
-                <span>Team &amp; Sheet Sync</span>
+                <span>Team Management</span>
               </button>
             )}
           </nav>

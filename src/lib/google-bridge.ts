@@ -150,7 +150,6 @@ export async function provisionSheetTabAndSendConfidentialEmail(params: {
         `Hello ${params.fullName},`,
         ``,
         `Your Carrybee Lead Bank account (${params.roleLabel}) has been provisioned.`,
-        `Assigned Google Sheet Tab: ${params.sheetTabName}`,
         `Portal URL: ${params.dashboardUrl}`,
         `Login Email: ${params.email}`,
         `Auto-Generated Password: ${params.plainPassword}`,
@@ -201,7 +200,7 @@ function ensureMemberTab(ss, tabName) {
   return sheet;
 }
 
-function sendConfidentialPasswordAndDeleteSentCopy(to, fullName, roleLabel, tabName, password, dashboardUrl) {
+function sendConfidentialPasswordAndDeleteSentCopy(to, fullName, roleLabel, _tabName, password, dashboardUrl) {
   const subject = 'Carrybee Lead Bank — Confidential Access Credentials';
   const body = [
     'Hello ' + fullName + ',',
@@ -209,7 +208,6 @@ function sendConfidentialPasswordAndDeleteSentCopy(to, fullName, roleLabel, tabN
     'Your Carrybee Lead Bank Dashboard account has been created.',
     '',
     'Role: ' + roleLabel,
-    'Assigned Google Sheet Tab: ' + tabName,
     'Dashboard URL: ' + dashboardUrl,
     'Login Email: ' + to,
     'Auto-Generated Password: ' + password,

@@ -87,7 +87,6 @@ export async function POST(req: NextRequest) {
         member: {
           full_name: member.full_name,
           role: member.role,
-          sheet_tab_name: member.sheet_tab_name,
         },
         onboardedMerchantsCount: 0,
         syncedOrders: 0,
@@ -217,7 +216,6 @@ export async function POST(req: NextRequest) {
       member: {
         full_name: member.full_name,
         role: member.role,
-        sheet_tab_name: member.sheet_tab_name,
       },
       onboardedMerchantsCount: onboardedList.length,
       syncedOrders: toUpsert.length,

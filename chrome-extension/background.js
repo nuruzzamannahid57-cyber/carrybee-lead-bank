@@ -1,7 +1,7 @@
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message && message.type === 'SYNC_ORDERS_TO_DASHBOARD') {
     chrome.storage.local.get(['dashboardUrl', 'extensionToken', 'matchOnlyOnboarded'], async (cfg) => {
-      const baseUrl = String(cfg.dashboardUrl || '').replace(/\/+$/, '');
+      const baseUrl = String(cfg.dashboardUrl || 'https://carrybee-lead-bank-gamma.vercel.app').replace(/\/+$/, '');
       const token = String(cfg.extensionToken || '').trim();
       if (!baseUrl || !token) {
         sendResponse({

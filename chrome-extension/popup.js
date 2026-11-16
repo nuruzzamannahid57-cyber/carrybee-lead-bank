@@ -36,7 +36,7 @@ async function verifyConnection(baseUrl, token) {
 chrome.storage.local.get(
   ['dashboardUrl', 'extensionToken', 'matchOnlyOnboarded', 'lastSyncSummary'],
   (cfg) => {
-    if (cfg.dashboardUrl) urlInput.value = cfg.dashboardUrl;
+    urlInput.value = cfg.dashboardUrl || 'https://carrybee-lead-bank-gamma.vercel.app';
     if (cfg.extensionToken) tokenInput.value = cfg.extensionToken;
     matchCheck.checked = cfg.matchOnlyOnboarded !== false;
     if (cfg.lastSyncSummary) {

@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
 
   const origin =
     req.headers.get('origin') ||
-    `https://${req.headers.get('host') || 'lead-bank-dashboard.vercel.app'}`;
+    `https://${req.headers.get('host') || 'carrybee-lead-bank-gamma.vercel.app'}`;
 
   const roleLabels: Record<UserRole, string> = {
     super_admin: 'Super Admin',

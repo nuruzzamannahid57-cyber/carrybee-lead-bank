@@ -24,6 +24,25 @@ interface LeadBankTabProps {
   onCountsChanged: () => void;
 }
 
+function LeadTableSkeleton() {
+  return (
+    <>
+      <tr className="sr-only"><td colSpan={7} role="status">Loading your private leads</td></tr>
+      {Array.from({ length: 5 }, (_, index) => (
+        <tr key={index} aria-hidden="true" className="lead-skeleton-row">
+          <td className="px-4 py-4"><div className="skeleton-shimmer h-3 w-3/4 rounded-md" /><div className="skeleton-shimmer mt-2 h-2.5 w-1/2 rounded-md opacity-60" /></td>
+          <td className="px-3 py-4"><div className="skeleton-shimmer h-3 w-2/3 rounded-md" /></td>
+          <td className="px-3 py-4"><div className="skeleton-shimmer h-3 w-4/5 rounded-md" /></td>
+          <td className="px-3 py-4"><div className="skeleton-shimmer h-3 w-2/3 rounded-md" /><div className="skeleton-shimmer mt-2 h-2.5 w-1/2 rounded-md opacity-60" /></td>
+          <td className="px-3 py-4"><div className="skeleton-shimmer h-6 w-20 rounded-full" /></td>
+          <td className="px-3 py-4"><div className="skeleton-shimmer h-3 w-3/4 rounded-md" /></td>
+          <td className="px-4 py-4"><div className="ml-auto flex w-fit gap-1.5"><div className="skeleton-shimmer h-7 w-7 rounded-md" /><div className="skeleton-shimmer h-7 w-7 rounded-md" /></div></td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
 const STAGE_OPTIONS: Array<{ value: LeadStage; label: string; badgeClass: string }> = [
   {
     value: 'new',
@@ -365,13 +384,9 @@ export default function LeadBankTab({
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody aria-busy={loading} className="divide-y divide-[#E2E8F0]">
               {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-xs text-[#475569]">
-                    Loading private leads for {member.full_name}...
-                  </td>
-                </tr>
+                <LeadTableSkeleton />
               ) : leads.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-xs text-[#475569]">
@@ -505,10 +520,17 @@ export default function LeadBankTab({
 
         {/* Pagination Footer */}
         <div className="flex flex-col items-center justify-between gap-2 border-t border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-xs text-[#475569] sm:flex-row">
-          <span className="tabular-nums">
-            Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> (
-            {total.toLocaleString()} total private leads)
-          </span>
+          {loading ? (
+            <span role="status" className="inline-flex items-center gap-2">
+              <span aria-hidden="true" className="skeleton-shimmer h-3 w-40 rounded-md" />
+              <span className="sr-only">Loading private lead count</span>
+            </span>
+          ) : (
+            <span className="tabular-nums">
+              Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> (
+              {total.toLocaleString()} total private leads)
+            </span>
+          )}
           <div className="flex items-center gap-2">
             <button
               type="button"

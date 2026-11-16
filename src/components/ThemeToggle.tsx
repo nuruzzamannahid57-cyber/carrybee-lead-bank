@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
 
   useEffect(() => {
     const saved = window.localStorage.getItem('carrybee-theme');
-    const initialDark = saved === 'dark';
+    // Dark is the default; honor an explicit saved light-mode choice.
+    const initialDark = saved !== 'light';
     setDark(initialDark);
     document.documentElement.dataset.theme = initialDark ? 'dark' : 'light';
   }, []);

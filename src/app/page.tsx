@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Building2,
   Database,
@@ -12,12 +13,18 @@ import {
   KeyRound,
   X,
 } from 'lucide-react';
-import AdminTeamTab from '@/components/AdminTeamTab';
 import LeadBankTab from '@/components/LeadBankTab';
 import LoginView from '@/components/LoginView';
-import MoneyTab from '@/components/MoneyTab';
-import ProgressionTab from '@/components/ProgressionTab';
 import ThemeToggle from '@/components/ThemeToggle';
+
+const DeferredTab = () => (
+  <div role="status" className="rounded-xl border border-slate-200/20 bg-white/5 px-4 py-6 text-center text-sm text-slate-400">
+    Loading section…
+  </div>
+);
+const AdminTeamTab = dynamic(() => import('@/components/AdminTeamTab'), { loading: DeferredTab });
+const MoneyTab = dynamic(() => import('@/components/MoneyTab'), { loading: DeferredTab });
+const ProgressionTab = dynamic(() => import('@/components/ProgressionTab'), { loading: DeferredTab });
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TeamMemberProfile } from '@/lib/types';
 

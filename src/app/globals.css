@@ -39,8 +39,9 @@ body {
     repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 44px),
     repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 44px),
     linear-gradient(145deg, #e9f2ff 0%, #e8effa 48%, #edf9f5 100%);
-  background-size: 130% 130%;
-  animation: ambient-gradient 22s ease-in-out infinite alternate;
+  background-size: auto;
+  /* Keep the luminous surface static; GPU-heavy full-screen gradient animation slows mobile devices. */
+  animation: none;
 }
 
 .app-shell::before,
@@ -52,8 +53,8 @@ body {
   aspect-ratio: 1;
   border-radius: 9999px;
   pointer-events: none;
-  filter: blur(48px);
-  opacity: .72;
+  filter: blur(26px);
+  opacity: .52;
   animation: ambient-drift 12s ease-in-out infinite alternate;
 }
 
@@ -77,8 +78,8 @@ body {
   background: rgba(255, 255, 255, .68) !important;
   border-color: rgba(255, 255, 255, .9) !important;
   box-shadow: 0 14px 42px rgba(30, 64, 110, .11), inset 0 1px rgba(255,255,255,.98);
-  backdrop-filter: blur(28px) saturate(175%);
-  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  backdrop-filter: blur(12px) saturate(145%);
+  -webkit-backdrop-filter: blur(12px) saturate(145%);
   animation: glass-drop-in .65s cubic-bezier(.2,.7,.2,1) both;
 }
 
@@ -105,8 +106,8 @@ body {
   background: rgba(255, 255, 255, .64) !important;
   border-color: rgba(255, 255, 255, .97) !important;
   box-shadow: 0 24px 64px rgba(34, 65, 108, .12), 0 5px 14px rgba(30, 64, 110, .055), inset 0 1.5px rgba(255,255,255,.98);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
 }
 
 .login-shell {
@@ -144,8 +145,8 @@ body {
 .theme-toggle-wrap {
   display: inline-flex;
   align-items: center;
-  gap: .55rem;
-  padding: .25rem .5rem;
+  gap: .35rem;
+  padding: .15rem .35rem;
   border: 1px solid rgba(148, 163, 184, .22);
   border-radius: 999px;
   background: rgba(255, 255, 255, .34);
@@ -153,7 +154,7 @@ body {
 
 .theme-toggle-label {
   color: #475569;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 650;
   white-space: nowrap;
 }
@@ -161,8 +162,8 @@ body {
 .theme-switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 46px;
+  height: 26px;
   flex: 0 0 auto;
   cursor: pointer;
 }
@@ -182,7 +183,7 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 34px;
+  border-radius: 26px;
   background: linear-gradient(135deg, #168ce1, #63c9f2);
   box-shadow: inset 0 2px 4px rgba(15, 23, 42, .18), 0 2px 7px rgba(37, 99, 235, .22);
   transition: background .4s ease, box-shadow .3s ease;
@@ -191,10 +192,10 @@ body {
 .theme-switch-orb {
   position: absolute;
   z-index: 1;
-  left: 4px;
-  bottom: 4px;
-  width: 26px;
-  height: 26px;
+  left: 3px;
+  bottom: 3px;
+  width: 20px;
+  height: 20px;
   overflow: hidden;
   border-radius: 50%;
   background: #ffe16a;
@@ -257,7 +258,7 @@ body {
   box-shadow: inset 0 2px 5px rgba(0,0,0,.45), 0 2px 8px rgba(15,23,42,.22);
 }
 .theme-switch-input:checked + .theme-switch-track .theme-switch-orb {
-  transform: translateX(26px) rotate(180deg);
+  transform: translateX(20px) rotate(180deg);
   background: #f8fafc;
 }
 .theme-switch-input:checked + .theme-switch-track .theme-moon-dot { opacity: 1; }

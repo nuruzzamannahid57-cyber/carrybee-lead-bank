@@ -237,7 +237,7 @@ function doPost(e) {
     const action = data.action;
 
     if (action === 'ping') {
-      return ContentService.createTextOutput(JSON.stringify({ ok: true, message: 'Bridge connected to ' + ss.getName() }))
+      return ContentService.createTextOutput(JSON.stringify({ ok: true, message: 'Connection verified successfully.' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 

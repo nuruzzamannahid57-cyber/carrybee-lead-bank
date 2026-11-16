@@ -29,11 +29,10 @@ Confidential multi-role B2B Lead Bank dashboard, Google Sheets 1-to-1 tab dual-s
      - **Mid-month starters (e.g. Day 16):** tracked across the remaining days of the start month (`15d`) **plus** the full `30/31` days of the next month.
    - Displays the **Incentives Card (`2%` of Total Eligible COD)**.
 
-## Push to GitHub & Connect to Vercel
+## Live Deployment & Repository
 
-```bash
-# Push this repository to a new private GitHub repo under BossNAHID / nuruzzamannahid57-cyber:
-gh repo create lead-bank-dashboard --private --source=. --remote=origin --push
-```
-
-Once pushed, link `lead-bank-dashboard` in Vercel Project Settings -> Git to enable automatic deployments on every `git push`.
+- **Production Dashboard (Vercel):** https://carrybee-lead-bank-gamma.vercel.app
+- **Carrybee Hive Chrome Extension Bundle:** https://carrybee-lead-bank-gamma.vercel.app/carrybee-hive-tracker-extension.zip
+- **GitHub Repository (Auto-Deploys on Push to `main`):** https://github.com/nuruzzamannahid57-cyber/carrybee-lead-bank
+- **Supabase Project (`ap-southeast-1`):** `ssfuduqemmjndsdvgmjk` (`lead-bank-dashboard`)
+- **Connected Google Sheet (`Asia/Dhaka`):** `1f46_Wp-j4RNf2B5ojEVDJQXuayjNojuuh5u6GJimavM`

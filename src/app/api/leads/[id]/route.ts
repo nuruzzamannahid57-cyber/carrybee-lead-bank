@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { syncLeadDeleteFromSheet, syncLeadUpdateInSheet } from '@/lib/google-bridge';
 import { standardizePhoneField } from '@/lib/phone';
-import { requireAuthenticatedMember } from '@/lib/supabase/server';
+import { getSupabaseAdmin, requireAuthenticatedMember } from '@/lib/supabase/server';
 import type { Lead, LeadStage } from '@/lib/types';
 
 export async function PATCH(
@@ -26,6 +26,16 @@ export async function PATCH(
 
   if (fetchErr || !current) {
     return NextResponse.json({ error: 'Lead not found in your private list.' }, { status: 404 });
+  }
+
+  if (
+    (body.stage === 'connected' || body.stage === 'followup') &&
+    body.stage !== current.stage
+  ) {
+    return NextResponse.json(
+      { error: 'Upload a screenshot or call recording to confirm this stage change.' },
+      { status: 400 }
+    );
   }
 
   const updates: Record<string, unknown> = {
@@ -138,6 +148,23 @@ export async function DELETE(
 
   if (findErr || !target) {
     return NextResponse.json({ error: 'Lead not found in your private list.' }, { status: 404 });
+  }
+
+  const { data: evidenceRows, error: evidenceErr } = await userClient
+    .from('lead_stage_evidence')
+    .select('file_path')
+    .eq('lead_id', id)
+    .eq('owner_id', member.id);
+  if (evidenceErr) {
+    return NextResponse.json({ error: 'Could not verify attached evidence before deletion.' }, { status: 500 });
+  }
+  if (evidenceRows?.length) {
+    const { error: storageErr } = await getSupabaseAdmin()
+      .storage.from('lead-evidence')
+      .remove(evidenceRows.map((row) => row.file_path));
+    if (storageErr) {
+      return NextResponse.json({ error: 'Could not remove private evidence files; lead was not deleted.' }, { status: 500 });
+    }
   }
 
   const { error: delErr } = await userClient

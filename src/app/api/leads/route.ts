@@ -98,7 +98,13 @@ export async function POST(req: NextRequest) {
 
   const validStages: LeadStage[] = ['new', 'connected', 'followup', 'onboarded'];
   const stage: LeadStage = validStages.includes(body.stage) ? body.stage : 'new';
-  const scheduleFollowup = Boolean(body.needs_followup) || stage === 'followup' || stage === 'connected';
+  if (stage === 'connected' || stage === 'followup') {
+    return NextResponse.json(
+      { error: 'Upload a screenshot or call recording before creating a lead in this stage.' },
+      { status: 400 }
+    );
+  }
+  const scheduleFollowup = Boolean(body.needs_followup);
 
   const { standardized, primaryNormalized } = standardizePhoneField(rawPhone);
 
@@ -135,7 +141,7 @@ export async function POST(req: NextRequest) {
     pickup_area: pickupArea,
     stage,
     needs_followup: stage === 'onboarded' ? false : scheduleFollowup,
-    last_contacted_at: stage === 'connected' || stage === 'followup' ? now.toISOString() : null,
+    last_contacted_at: null,
     followup_due_at:
       stage === 'onboarded'
         ? null

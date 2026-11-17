@@ -13,8 +13,11 @@ import {
   ChevronRight,
   CheckCircle2,
   Phone,
+  Paperclip,
   X,
 } from 'lucide-react';
+import LeadEvidenceUploadModal from '@/components/LeadEvidenceUploadModal';
+import LeadEvidenceListModal from '@/components/LeadEvidenceListModal';
 import { standardizePhoneField } from '@/lib/phone';
 import type { Lead, LeadStage, TeamMemberProfile } from '@/lib/types';
 
@@ -80,6 +83,11 @@ export default function LeadBankTab({
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [evidenceRequest, setEvidenceRequest] = useState<{
+    lead: Lead;
+    stage: Extract<LeadStage, 'connected' | 'followup'>;
+  } | null>(null);
+  const [evidenceListLead, setEvidenceListLead] = useState<Lead | null>(null);
 
   // Add / Edit modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -174,6 +182,13 @@ export default function LeadBankTab({
     setSaving(true);
     setFeedback(null);
     try {
+      const targetStage = form.stage;
+      const needsEvidence =
+        (targetStage === 'connected' || targetStage === 'followup') &&
+        (!editingLead || targetStage !== editingLead.stage);
+      const payload = needsEvidence
+        ? { ...form, stage: editingLead?.stage || 'new' }
+        : form;
       const url = editingLead ? `/api/leads/${editingLead.id}` : '/api/leads';
       const method = editingLead ? 'PATCH' : 'POST';
       const res = await fetch(url, {
@@ -182,7 +197,7 @@ export default function LeadBankTab({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -190,12 +205,17 @@ export default function LeadBankTab({
         return;
       }
       setModalOpen(false);
-      setFeedback({
-        type: 'ok',
-        text: editingLead
-          ? `Updated "${data.lead.business_name}" in your private Lead Bank.`
-          : `Added "${data.lead.business_name}" to your private Lead Bank.`,
-      });
+      if (needsEvidence) {
+        setEvidenceRequest({ lead: data.lead as Lead, stage: targetStage as 'connected' | 'followup' });
+        setFeedback({ type: 'ok', text: 'Saved the lead. Upload evidence to complete the stage change.' });
+      } else {
+        setFeedback({
+          type: 'ok',
+          text: editingLead
+            ? `Updated "${data.lead.business_name}" in your private Lead Bank.`
+            : `Added "${data.lead.business_name}" to your private Lead Bank.`,
+        });
+      }
       fetchLeads();
       onCountsChanged();
     } finally {
@@ -205,6 +225,10 @@ export default function LeadBankTab({
 
   async function handleQuickStageChange(lead: Lead, nextStage: LeadStage) {
     setFeedback(null);
+    if ((nextStage === 'connected' || nextStage === 'followup') && nextStage !== lead.stage) {
+      setEvidenceRequest({ lead, stage: nextStage });
+      return;
+    }
     const res = await fetch(`/api/leads/${lead.id}`, {
       method: 'PATCH',
       headers: {
@@ -229,6 +253,17 @@ export default function LeadBankTab({
         });
       }
     }
+  }
+
+  function handleEvidenceSuccess(updatedLead: Lead) {
+    setLeads((prev) => prev.map((row) => row.id === updatedLead.id ? updatedLead : row));
+    setEvidenceRequest(null);
+    setFeedback({
+      type: 'ok',
+      text: `Evidence saved. "${updatedLead.business_name}" is now ${updatedLead.stage === 'connected' ? 'Connected' : 'Follow-Up'}.`,
+    });
+    fetchLeads();
+    onCountsChanged();
   }
 
   async function handleDeleteLead(lead: Lead) {
@@ -492,6 +527,15 @@ export default function LeadBankTab({
 
                       <td className="px-4 py-2.5 text-right">
                         <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setEvidenceListLead(lead)}
+                            aria-label={`View evidence for ${lead.business_name}`}
+                            title="View uploaded evidence"
+                            className="cursor-pointer rounded p-1.5 text-[#475569] transition-colors hover:bg-[#EFF6FF] hover:text-[#1D4ED8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+                          >
+                            <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
                           <button
                             type="button"
                             onClick={() => openEditModal(lead)}
@@ -770,6 +814,23 @@ export default function LeadBankTab({
             </form>
           </div>
         </div>
+      )}
+      {evidenceRequest && (
+        <LeadEvidenceUploadModal
+          lead={evidenceRequest.lead}
+          stage={evidenceRequest.stage}
+          accessToken={accessToken}
+          memberId={member.id}
+          onClose={() => setEvidenceRequest(null)}
+          onSuccess={handleEvidenceSuccess}
+        />
+      )}
+      {evidenceListLead && (
+        <LeadEvidenceListModal
+          lead={evidenceListLead}
+          accessToken={accessToken}
+          onClose={() => setEvidenceListLead(null)}
+        />
       )}
     </div>
   );

@@ -44,14 +44,15 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
   const { id } = await context.params;
   const body = await req.json().catch(() => ({}));
   const stage = body.stage;
+  const attachOnly = body.attach_only === true;
   const filePath = String(body.file_path || '');
   const originalName = String(body.original_name || '').trim();
   const mimeType = String(body.mime_type || '').toLowerCase();
   const originalSize = Number(body.original_size_bytes);
   const storedSize = Number(body.stored_size_bytes);
 
-  if (stage !== 'connected' && stage !== 'followup') {
-    return NextResponse.json({ error: 'Evidence is only used for Connected and Follow-Up stages.' }, { status: 400 });
+  if (attachOnly ? stage !== 'onboarded' : stage !== 'connected' && stage !== 'followup') {
+    return NextResponse.json({ error: 'Evidence can be attached to an onboarded lead or submitted while moving to Connected or Follow-Up.' }, { status: 400 });
   }
   if (!ALLOWED_TYPES.has(mimeType) || !Number.isFinite(originalSize) || originalSize <= 0 || originalSize > MAX_BYTES || !Number.isFinite(storedSize) || storedSize <= 0 || storedSize > MAX_BYTES) {
     return NextResponse.json({ error: 'Unsupported evidence file or size. Files must be compressed and no larger than 20 MB.' }, { status: 400 });
@@ -68,6 +69,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
   const { data: lead, error: leadErr } = await auth.userClient
     .from('leads').select('*').eq('id', id).eq('owner_id', auth.member.id).maybeSingle();
   if (leadErr || !lead) return NextResponse.json({ error: 'Lead not found in your private list.' }, { status: 404 });
+  if (attachOnly && lead.stage !== 'onboarded') {
+    return NextResponse.json({ error: 'Standalone evidence can only be added to an onboarded lead.' }, { status: 409 });
+  }
 
   const admin = getSupabaseAdmin();
   const folder = `${auth.member.id}/${id}`;
@@ -78,6 +82,28 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
   if (actualStoredSize !== storedSize || actualStoredSize > MAX_BYTES) {
     await admin.storage.from(BUCKET).remove([filePath]);
     return NextResponse.json({ error: 'Evidence size verification failed. Please upload again.' }, { status: 400 });
+  }
+
+  if (attachOnly) {
+    const { data: evidence, error: evidenceErr } = await auth.userClient
+      .from('lead_stage_evidence')
+      .insert({
+        lead_id: id,
+        owner_id: auth.member.id,
+        stage: 'onboarded',
+        file_path: filePath,
+        original_name: originalName,
+        mime_type: mimeType,
+        original_size_bytes: originalSize,
+        stored_size_bytes: storedSize,
+      })
+      .select('id,stage,original_name,mime_type,original_size_bytes,stored_size_bytes,created_at')
+      .single();
+    if (evidenceErr || !evidence) {
+      await admin.storage.from(BUCKET).remove([filePath]);
+      return NextResponse.json({ error: evidenceErr?.message || 'Could not save evidence metadata.' }, { status: 500 });
+    }
+    return NextResponse.json({ lead: lead as Lead, evidence });
   }
 
   const now = new Date();

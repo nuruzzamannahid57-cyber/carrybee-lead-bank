@@ -88,6 +88,7 @@ export default function LeadBankTab({
     stage: Extract<LeadStage, 'connected' | 'followup'>;
   } | null>(null);
   const [evidenceListLead, setEvidenceListLead] = useState<Lead | null>(null);
+  const [attachEvidenceLead, setAttachEvidenceLead] = useState<Lead | null>(null);
 
   // Add / Edit modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -260,7 +261,9 @@ export default function LeadBankTab({
     setEvidenceRequest(null);
     setFeedback({
       type: 'ok',
-      text: `Evidence saved. "${updatedLead.business_name}" is now ${updatedLead.stage === 'connected' ? 'Connected' : 'Follow-Up'}.`,
+      text: updatedLead.stage === 'onboarded'
+        ? `Evidence attached to onboarded lead "${updatedLead.business_name}".`
+        : `Evidence saved. "${updatedLead.business_name}" is now ${updatedLead.stage === 'connected' ? 'Connected' : 'Follow-Up'}.`,
     });
     fetchLeads();
     onCountsChanged();
@@ -819,16 +822,29 @@ export default function LeadBankTab({
         <LeadEvidenceUploadModal
           lead={evidenceRequest.lead}
           stage={evidenceRequest.stage}
+          mode="stage-change"
           accessToken={accessToken}
           memberId={member.id}
           onClose={() => setEvidenceRequest(null)}
           onSuccess={handleEvidenceSuccess}
         />
       )}
+      {attachEvidenceLead && (
+        <LeadEvidenceUploadModal
+          lead={attachEvidenceLead}
+          stage="onboarded"
+          mode="attach-only"
+          accessToken={accessToken}
+          memberId={member.id}
+          onClose={() => setAttachEvidenceLead(null)}
+          onSuccess={(updated) => { setAttachEvidenceLead(null); handleEvidenceSuccess(updated); }}
+        />
+      )}
       {evidenceListLead && (
         <LeadEvidenceListModal
           lead={evidenceListLead}
           accessToken={accessToken}
+          onAddEvidence={() => { const target = evidenceListLead; setEvidenceListLead(null); setAttachEvidenceLead(target); }}
           onClose={() => setEvidenceListLead(null)}
         />
       )}

@@ -8,14 +8,15 @@ import { compressEvidenceFile, MAX_EVIDENCE_BYTES } from '@/lib/evidence-compres
 
 interface Props {
   lead: Lead;
-  stage: Extract<LeadStage, 'connected' | 'followup'>;
+  stage: LeadStage;
+  mode: 'stage-change' | 'attach-only';
   accessToken: string;
   memberId: string;
   onClose: () => void;
   onSuccess: (lead: Lead) => void;
 }
 
-export default function LeadEvidenceUploadModal({ lead, stage, accessToken, memberId, onClose, onSuccess }: Props) {
+export default function LeadEvidenceUploadModal({ lead, stage, mode, accessToken, memberId, onClose, onSuccess }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -58,6 +59,7 @@ export default function LeadEvidenceUploadModal({ lead, stage, accessToken, memb
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({
           stage,
+          attach_only: mode === 'attach-only',
           file_path: uploadedPath,
           original_name: file.name,
           mime_type: compressed.mimeType,
@@ -84,7 +86,7 @@ export default function LeadEvidenceUploadModal({ lead, stage, accessToken, memb
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h3 id="evidence-upload-title" className="text-base font-bold text-slate-900">Evidence required</h3>
-            <p className="mt-1 text-sm text-slate-600">Upload proof before marking <strong>{lead.business_name}</strong> as {stage === 'connected' ? 'Connected' : 'Follow-Up'}.</p>
+            <p className="mt-1 text-sm text-slate-600">{mode === 'attach-only' ? <>Attach a file to onboarded lead <strong>{lead.business_name}</strong>. This will not change its pipeline stage.</> : <>Upload proof before marking <strong>{lead.business_name}</strong> as {stage === 'connected' ? 'Connected' : 'Follow-Up'}.</>}</p>
           </div>
           <button type="button" onClick={onClose} disabled={busy} aria-label="Close" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"><X className="h-4 w-4" /></button>
         </div>
@@ -101,7 +103,7 @@ export default function LeadEvidenceUploadModal({ lead, stage, accessToken, memb
           <p className="text-xs text-slate-500">Files are compressed where applicable and stored privately. Only you can view or download evidence attached to your leads. Upload call recordings only when required consent has been obtained.</p>
           <div className="flex justify-end gap-2 border-t border-slate-200 pt-4">
             <button type="button" onClick={onClose} disabled={busy} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">Cancel</button>
-            <button type="submit" disabled={busy || !file} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Saving…' : 'Upload & update stage'}</button>
+            <button type="submit" disabled={busy || !file} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Saving…' : mode === 'attach-only' ? 'Upload evidence' : 'Upload & update stage'}</button>
           </div>
         </form>
       </div>
